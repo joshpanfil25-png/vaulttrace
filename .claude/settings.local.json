@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:catalog.data.gov)",
+      "WebFetch(domain:www.efast.dol.gov)",
+      "Bash(curl -s \"https://apiprod.dol.gov/v4/datasets\")",
+      "Bash(curl -sv \"https://5500search.dol.gov/\")",
+      "Bash(curl -sA \"Mozilla/5.0 \\(Windows NT 10.0; Win64; x64\\) AppleWebKit/537.36\" \"https://www.efast.dol.gov/5500search/\")",
+      "Bash(curl -sA \"Mozilla/5.0\" \"https://www.efast.dol.gov/5500search/\" -o /tmp/efast_page.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -sLA \"Mozilla/5.0\" \"https://www.efast.dol.gov/5500search/\" -o /tmp/efast_page.html 2)",
+      "Bash(1 wc:*)",
+      "Bash(head -30 grep -i \"api\\\\|search\\\\|endpoint\\\\|fetch\\\\|xhr\\\\|ajax\" /tmp/efast_page.html)",
+      "Bash(grep -oE \"services[/a-zA-Z0-9_?=&%-]{2,100}\" /tmp/efast_main.js)",
+      "Bash(node:*)",
+      "Bash(curl -sLA \"Mozilla/5.0\" \"https://www.efast.dol.gov/5500Search/main.js\" -o \"$TEMP/efast_main.js\")",
+      "Bash(curl -sLA \"Mozilla/5.0\" \"https://www.pbgc.gov/pensions/find-a-pension\" -o /tmp/pbgc_page.html 2)",
+      "Bash(head -20 grep -i \"api\\\\|endpoint\\\\|search\\\\|fetch\\\\|ajax\\\\|xhr\\\\|baseurl\\\\|pensionSearch\" /tmp/pbgc_page.html)",
+      "WebFetch(domain:sco.ca.gov)",
+      "WebFetch(domain:osc.ny.gov)",
+      "WebFetch(domain:claimittexas.org)",
+      "WebFetch(domain:fltreasurehunt.gov)",
+      "WebFetch(domain:icash.illinoistreasurer.gov)",
+      "WebFetch(domain:patreasury.gov)",
+      "WebFetch(domain:com.ohio.gov)",
+      "WebFetch(domain:dor.georgia.gov)",
+      "WebFetch(domain:nctreasurer.com)",
+      "WebFetch(domain:michigan.gov)",
+      "WebFetch(domain:www.claimittexas.gov)",
+      "WebFetch(domain:www.nctreasurer.gov)",
+      "WebFetch(domain:unfd.com.ohio.gov)",
+      "WebFetch(domain:claimit.ca.gov)",
+      "WebFetch(domain:ouf.osc.ny.gov)",
+      "WebFetch(domain:www.sco.ca.gov)",
+      "WebFetch(domain:www.osc.ny.gov)",
+      "WebFetch(domain:comptroller.texas.gov)",
+      "WebFetch(domain:www.fltreasurehunt.gov)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

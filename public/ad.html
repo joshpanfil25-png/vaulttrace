@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>VaultTrace Ad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <!-- html2canvas for frame capture -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0a;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* ── Viewport wrapper: centers + scales the stage ── */
+    #stage-wrapper {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── 1080×1080 canvas ── */
+    #stage {
+      position: relative;
+      width: 1080px;
+      height: 1080px;
+      background: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+      transform-origin: center center;
+      /* scale set by JS on load + resize */
+    }
+
+    /* ── Scenes ── */
+    .scene {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+      text-align: center;
+    }
+    .scene.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* ── Progress bar ── */
+    #progress-wrap {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 5px;
+      background: rgba(255,255,255,0.07);
+      z-index: 100;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #f59e0b, #ea580c);
+      transition: width 0.08s linear;
+    }
+
+    /* ── Recording indicator ── */
+    #rec-indicator {
+      position: absolute;
+      top: 24px; right: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(0,0,0,0.6);
+      border: 1px solid rgba(239,68,68,0.4);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-size: 20px;
+      font-weight: 600;
+      color: #ef4444;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 110;
+      transition: opacity 0.3s ease;
+    }
+    #rec-indicator.visible { opacity: 1; }
+    .rec-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: recBlink 1s ease-in-out infinite;
+    }
+    @keyframes recBlink {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.2; }
+    }
+
+    /* ── Replay button ── */
+    #replay-btn {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 100px;
+      padding: 14px 44px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: #fff;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease, background 0.2s;
+      z-index: 150;
+    }
+    #replay-btn.visible { opacity: 1; pointer-events: all; }
+    #replay-btn:hover { background: rgba(255,255,255,0.13); }
+
+    /* ── Start overlay ── */
+    #start-overlay {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      z-index: 200;
+      transition: opacity 0.5s ease;
+    }
+    #start-overlay.hidden { opacity: 0; pointer-events: none; }
+
+    .logo-mark {
+      width: 72px; height: 72px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 40px; color: #fff;
+    }
+    .overlay-title {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 52px; color: #fff;
+    }
+    .overlay-title span { color: #f59e0b; }
+    .overlay-sub { font-size: 22px; color: #52525b; margin-bottom: 12px; }
+
+    .overlay-btn-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      border: none;
+      border-radius: 100px;
+      padding: 20px 52px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 8px 36px rgba(245,158,11,0.3);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+    }
+    .btn-primary:hover { transform: scale(1.03); box-shadow: 0 12px 48px rgba(245,158,11,0.45); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 100px;
+      padding: 20px 44px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: #d4d4d8;
+      cursor: pointer;
+      transition: background 0.15s ease, opacity 0.15s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.11); }
+    .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    #record-status {
+      font-size: 20px;
+      color: #71717a;
+      min-height: 26px;
+      text-align: center;
+    }
+    #record-status.error { color: #f87171; }
+
+    /* ════════════════════════
+       SCENE 1 — $2.1 Trillion
+    ════════════════════════ */
+    #s1-amount {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 200px;
+      line-height: 0.95;
+      letter-spacing: -6px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transform: translateY(30px);
+      opacity: 0;
+      transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease;
+    }
+    #s1-sub {
+      font-size: 46px;
+      font-weight: 300;
+      color: #e4e4e7;
+      margin-top: 28px;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.4s;
+    }
+    #s1.active #s1-amount { transform: translateY(0); opacity: 1; }
+    #s1.active #s1-sub    { opacity: 1; }
+
+    /* ════════════════════════
+       SCENE 2 — Average person
+    ════════════════════════ */
+    #s2-text {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 88px;
+      color: #fff;
+      line-height: 1.15;
+      transform: scale(0.9);
+      opacity: 0;
+      transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease;
+    }
+    #s2-text em {
+      font-style: normal;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    #s2.active #s2-text { transform: scale(1); opacity: 1; }
+
+    /* ════════════════════════
+       SCENE 3 — Used to mean
+    ════════════════════════ */
+    #s3 { align-items: flex-start; text-align: left; }
+
+    #s3-heading {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 64px;
+      color: #71717a;
+      margin-bottom: 52px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .x-item {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 36px;
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .x-item:nth-child(2) { transition-delay: 0.18s; }
+    .x-item:nth-child(3) { transition-delay: 0.36s; }
+    .x-item:nth-child(4) { transition-delay: 0.54s; }
+    #s3.active #s3-heading { opacity: 1; transform: translateY(0); }
+    #s3.active .x-item     { opacity: 1; transform: translateX(0); }
+
+    .x-icon {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: rgba(239,68,68,0.12);
+      border: 1.5px solid rgba(239,68,68,0.3);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .x-icon svg { width: 22px; height: 22px; }
+    .x-label { font-size: 50px; font-weight: 400; color: #e4e4e7; line-height: 1; }
+
+    /* ════════════════════════
+       SCENE 4 — Amber CTA
+    ════════════════════════ */
+    #s4 { background: linear-gradient(145deg, #f59e0b 0%, #ea580c 60%, #c2410c 100%); }
+    #s4-text {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 110px;
+      color: #fff;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      transform: scale(0.88);
+      opacity: 0;
+      transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease;
+    }
+    #s4-sub {
+      font-size: 42px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.75);
+      margin-top: 28px;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.5s;
+    }
+    #s4.active #s4-text { transform: scale(1); opacity: 1; }
+    #s4.active #s4-sub  { opacity: 1; }
+
+    /* ════════════════════════
+       SCENE 5 — Mock UI
+    ════════════════════════ */
+    #s5-card {
+      width: 100%;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 24px;
+      overflow: hidden;
+      transform: scale(0.94);
+      opacity: 0;
+      transition: transform 0.6s cubic-bezier(0.16,1,0.3,1), opacity 0.6s ease;
+    }
+    #s5.active #s5-card { transform: scale(1); opacity: 1; }
+
+    #s5-header { padding: 36px 44px 28px; border-bottom: 1px solid #27272a; }
+    #s5-found  { display: flex; align-items: center; gap: 14px; }
+
+    .found-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: #4ade80;
+      flex-shrink: 0;
+    }
+    #s5.active .found-dot { animation: dotPulse 1.2s ease-in-out infinite; }
+    @keyframes dotPulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50%     { transform: scale(1.7); opacity: 0.4; }
+    }
+
+    #s5-title    { font-family: 'Instrument Serif', Georgia, serif; font-size: 56px; color: #4ade80; line-height: 1; }
+    #s5-subtitle { font-size: 28px; color: #52525b; margin-top: 6px; }
+
+    .emp-row {
+      display: flex; align-items: center; gap: 24px;
+      padding: 28px 44px;
+      border-bottom: 1px solid #27272a;
+      opacity: 0;
+      transform: translateX(50px);
+      transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16,1,0.3,1);
+    }
+    .emp-row:last-child             { border-bottom: none; }
+    .emp-row:nth-child(1) { transition-delay: 0.3s; }
+    .emp-row:nth-child(2) { transition-delay: 0.55s; }
+    .emp-row:nth-child(3) { transition-delay: 0.8s; }
+    #s5.active .emp-row { opacity: 1; transform: translateX(0); }
+
+    .emp-icon {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .emp-icon svg { width: 24px; height: 24px; }
+    .emp-info { flex: 1; min-width: 0; text-align: left; }
+    .emp-name  { font-size: 34px; font-weight: 500; color: #f4f4f5; line-height: 1.1; }
+    .emp-plan  { font-size: 24px; color: #52525b; margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .emp-badge {
+      background: rgba(74,222,128,0.1);
+      border: 1px solid rgba(74,222,128,0.25);
+      border-radius: 100px;
+      padding: 8px 18px;
+      font-size: 22px; font-weight: 500; color: #4ade80;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    /* ════════════════════════
+       SCENE 6 — Free to search
+    ════════════════════════ */
+    #s6-headline {
+      font-family: 'Instrument Serif', Georgia, serif;
+      font-size: 160px; color: #fff;
+      line-height: 1; letter-spacing: -4px;
+      transform: translateY(40px); opacity: 0;
+      transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease;
+    }
+    #s6-url {
+      font-size: 60px; font-weight: 500;
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-top: 32px; opacity: 0;
+      transition: opacity 0.6s ease 0.45s;
+    }
+    #s6-glow {
+      position: absolute; bottom: 180px; left: 50%; transform: translateX(-50%);
+      width: 500px; height: 150px;
+      background: radial-gradient(ellipse, rgba(245,158,11,0.2) 0%, transparent 70%);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.6s ease 0.45s;
+    }
+    #s6.active #s6-headline { transform: translateY(0); opacity: 1; }
+    #s6.active #s6-url      { opacity: 1; }
+    #s6.active #s6-glow     { opacity: 1; }
+  </style>
+</head>
+<body>
+<div id="stage-wrapper">
+<div id="stage">
+
+  <!-- Scene 1 -->
+  <div class="scene" id="s1">
+    <div id="s1-amount">$2.1<br/>Trillion</div>
+    <div id="s1-sub">sitting in forgotten 401(k)s</div>
+  </div>
+
+  <!-- Scene 2 -->
+  <div class="scene" id="s2">
+    <div id="s2-text">The average person leaves behind <em>2 accounts</em> when they change jobs.</div>
+  </div>
+
+  <!-- Scene 3 -->
+  <div class="scene" id="s3">
+    <div id="s3-heading">Finding them used to mean:</div>
+    <div class="x-item">
+      <div class="x-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+      <span class="x-label">Calling HR departments</span>
+    </div>
+    <div class="x-item">
+      <div class="x-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+      <span class="x-label">Searching government websites</span>
+    </div>
+    <div class="x-item">
+      <div class="x-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+      <span class="x-label">Digging up old tax forms</span>
+    </div>
+  </div>
+
+  <!-- Scene 4 -->
+  <div class="scene" id="s4">
+    <div id="s4-text">VaultTrace does it<br/>in 30 seconds.</div>
+    <div id="s4-sub">Upload your IRS transcript. That's it.</div>
+  </div>
+
+  <!-- Scene 5 -->
+  <div class="scene" id="s5">
+    <div id="s5-card">
+      <div id="s5-header">
+        <div id="s5-found"><div class="found-dot"></div><div id="s5-title">3 accounts found</div></div>
+        <div id="s5-subtitle">Matched against DOL Form 5500 data</div>
+      </div>
+      <div class="emp-row">
+        <div class="emp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+        <div class="emp-info"><div class="emp-name">Acme Corp</div><div class="emp-plan">Acme 401(k) Plan · Last filed 2022</div></div>
+        <div class="emp-badge">401(k) found</div>
+      </div>
+      <div class="emp-row">
+        <div class="emp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+        <div class="emp-info"><div class="emp-name">TechStart LLC</div><div class="emp-plan">TechStart Retirement Plan · 2021</div></div>
+        <div class="emp-badge">401(k) found</div>
+      </div>
+      <div class="emp-row">
+        <div class="emp-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+        <div class="emp-info"><div class="emp-name">Global Retail Inc</div><div class="emp-plan">Global Retail 401(k) · Filed 2023</div></div>
+        <div class="emp-badge">401(k) found</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scene 6 -->
+  <div class="scene" id="s6">
+    <div id="s6-headline">Free<br/>to search.</div>
+    <div id="s6-url">vaulttrace.org</div>
+    <div id="s6-glow"></div>
+  </div>
+
+  <!-- Progress bar -->
+  <div id="progress-wrap"><div id="progress-bar"></div></div>
+
+  <!-- REC indicator -->
+  <div id="rec-indicator"><div class="rec-dot"></div>REC</div>
+
+  <!-- Replay -->
+  <button id="replay-btn" onclick="startSequence()">↩&nbsp; Replay</button>
+
+  <!-- Start overlay -->
+  <div id="start-overlay">
+    <div class="logo-mark">V</div>
+    <div class="overlay-title">Vault<span>Trace</span></div>
+    <div class="overlay-sub">1080 × 1080 · 14 second ad</div>
+    <div class="overlay-btn-row">
+      <button class="btn-primary" id="start-btn"  onclick="beginAd()">▶&nbsp; Preview</button>
+      <button class="btn-secondary" id="record-btn" onclick="beginRecord()">⏺&nbsp; Record &amp; Download</button>
+    </div>
+    <div id="record-status"></div>
+  </div>
+
+</div><!-- #stage -->
+</div><!-- #stage-wrapper -->
+
+<script>
+  /* ─── Constants ─── */
+  const TOTAL_MS = 14000
+  const SCENES = [
+    { id: 's1', enter: 0,     exit: 2000  },
+    { id: 's2', enter: 2100,  exit: 4000  },
+    { id: 's3', enter: 4100,  exit: 6000  },
+    { id: 's4', enter: 6100,  exit: 9000  },
+    { id: 's5', enter: 9100,  exit: 12000 },
+    { id: 's6', enter: 12100, exit: 14000 },
+  ]
+
+  /* ─── Viewport scaling ─── */
+  function scaleStage() {
+    const stage = document.getElementById('stage')
+    const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1080) * 0.96
+    stage.style.transform = `scale(${scale})`
+  }
+  scaleStage()
+  window.addEventListener('resize', scaleStage)
+
+  /* ─── Sequence engine ─── */
+  let timers = [], rafId = null, startTime = null
+
+  function clearAll() {
+    timers.forEach(clearTimeout); timers = []
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null }
+    SCENES.forEach(s => document.getElementById(s.id).classList.remove('active'))
+    document.getElementById('progress-bar').style.width = '0%'
+    document.getElementById('replay-btn').classList.remove('visible')
+  }
+
+  function startSequence(onComplete) {
+    clearAll()
+    startTime = performance.now()
+
+    SCENES.forEach(({ id, enter, exit }) => {
+      const el = document.getElementById(id)
+      timers.push(setTimeout(() => el.classList.add('active'),    enter))
+      timers.push(setTimeout(() => el.classList.remove('active'), exit))
+    })
+
+    timers.push(setTimeout(() => {
+      document.getElementById('replay-btn').classList.add('visible')
+      if (typeof onComplete === 'function') onComplete()
+    }, TOTAL_MS + 300))
+
+    // Progress bar via rAF
+    function tick(now) {
+      const pct = Math.min(((now - startTime) / TOTAL_MS) * 100, 100)
+      document.getElementById('progress-bar').style.width = pct + '%'
+      if (pct < 100) rafId = requestAnimationFrame(tick)
+    }
+    rafId = requestAnimationFrame(tick)
+  }
+
+  /* ─── Preview ─── */
+  function beginAd() {
+    const overlay = document.getElementById('start-overlay')
+    overlay.classList.add('hidden')
+    setTimeout(startSequence, 500)
+  }
+
+  /* ─── Record & Download ─── */
+  function beginRecord() {
+    const status  = document.getElementById('record-status')
+    const recBtn  = document.getElementById('record-btn')
+    const startBtn = document.getElementById('start-btn')
+
+    // Pick best supported mimeType
+    const mimeType = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+      .find(t => MediaRecorder.isTypeSupported(t)) || ''
+
+    if (!mimeType) {
+      status.textContent = 'MediaRecorder not supported in this browser.'
+      status.className = 'error'
+      return
+    }
+
+    recBtn.disabled  = true
+    startBtn.disabled = true
+    status.className  = ''
+    status.textContent = 'Starting recorder…'
+
+    // Temporarily remove CSS scale so html2canvas captures at 1080×1080
+    const stage = document.getElementById('stage')
+    const savedTransform = stage.style.transform
+    stage.style.transform = 'none'
+
+    // Off-screen canvas that MediaRecorder watches
+    const canvas  = document.createElement('canvas')
+    canvas.width  = 1080
+    canvas.height = 1080
+    const ctx = canvas.getContext('2d')
+
+    // Fill black first frame so recorder doesn't start on an empty canvas
+    ctx.fillStyle = '#000'
+    ctx.fillRect(0, 0, 1080, 1080)
+
+    const stream   = canvas.captureStream(30)
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 8_000_000 })
+    const chunks   = []
+
+    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data) }
+
+    recorder.onstop = () => {
+      stage.style.transform = savedTransform
+      const blob = new Blob(chunks, { type: 'video/webm' })
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = 'vaulttrace-ad.webm'
+      a.click()
+      setTimeout(() => URL.revokeObjectURL(url), 5000)
+
+      document.getElementById('rec-indicator').classList.remove('visible')
+      recBtn.disabled  = false
+      startBtn.disabled = false
+      status.textContent = '✓ Download started!'
+    }
+
+    // Capture loop — fires every ~50ms (≈20fps, balances quality vs html2canvas latency)
+    let capturing = false
+    const FPS_INTERVAL = 50
+
+    const captureInterval = setInterval(async () => {
+      if (capturing) return   // skip if previous frame still rendering
+      capturing = true
+      try {
+        const snap = await html2canvas(stage, {
+          width: 1080, height: 1080,
+          scale: 1,
+          backgroundColor: '#000000',
+          useCORS: true,
+          logging: false,
+          allowTaint: true,
+        })
+        ctx.drawImage(snap, 0, 0, 1080, 1080)
+      } catch (_) { /* ignore individual frame errors */ }
+      capturing = false
+    }, FPS_INTERVAL)
+
+    // Hide overlay, show REC badge, begin animation, stop after TOTAL_MS
+    const overlay = document.getElementById('start-overlay')
+    overlay.classList.add('hidden')
+
+    recorder.start(100) // collect data every 100ms
+    document.getElementById('rec-indicator').classList.add('visible')
+
+    setTimeout(() => {
+      startSequence()
+      status.textContent = 'Recording… 14 seconds'
+    }, 400)
+
+    setTimeout(() => {
+      clearInterval(captureInterval)
+      recorder.stop()
+      status.textContent = 'Processing…'
+    }, TOTAL_MS + 800)
+  }
+</script>
+</body>
+</html>
