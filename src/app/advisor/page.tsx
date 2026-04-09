@@ -564,7 +564,9 @@ function NewScanView({ onComplete }: { onComplete: () => void }) {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [step])
 
-  const handleUpload = useCallback(async (file: File) => {
+  const handleUpload = useCallback(async (files: File[]) => {
+    const file = files[0]
+    if (!file) return
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setEmailErr('Please enter a valid email address.')
       return

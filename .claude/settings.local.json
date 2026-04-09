@@ -36,7 +36,9 @@
       "WebFetch(domain:www.osc.ny.gov)",
       "WebFetch(domain:comptroller.texas.gov)",
       "WebFetch(domain:www.fltreasurehunt.gov)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(cmd:*)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }
