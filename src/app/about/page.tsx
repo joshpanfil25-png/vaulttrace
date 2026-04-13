@@ -51,7 +51,6 @@ export default function AboutPage() {
             </div>
             <div className="flex flex-col gap-1">
               <p className="text-sm font-semibold text-zinc-100">Josh Panfil</p>
-              <p className="text-xs text-zinc-500">Finance sophomore · USC Marshall</p>
             </div>
           </div>
 

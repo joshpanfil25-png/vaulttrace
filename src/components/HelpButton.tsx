@@ -74,7 +74,7 @@ export default function HelpButton() {
       <button
         onClick={() => setOpen(true)}
         aria-label="Need help?"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-amber-500/25 transition-all hover:opacity-90 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0"
+        className="fixed bottom-6 right-6 z-[90] flex items-center gap-2 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-3 text-sm font-medium text-white shadow-xl shadow-amber-500/25 transition-all hover:opacity-90 hover:shadow-amber-500/40 hover:-translate-y-0.5 active:translate-y-0"
       >
         <MessageCircle className="h-4 w-4" />
         <span className="hidden sm:inline">Need help?</span>
@@ -83,14 +83,14 @@ export default function HelpButton() {
       {/* ── Backdrop ── */}
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6"
+          className="fixed inset-0 z-[100] flex items-end justify-end p-4 sm:p-6"
           onClick={(e) => { if (e.target === e.currentTarget) handleClose() }}
         >
-          {/* Dim overlay */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
+          {/* Dim overlay — backdrop-blur creates a new stacking context, keep z-0 so modal sits above it */}
+          <div className="absolute inset-0 z-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
 
           {/* ── Modal ── */}
-          <div className="relative w-full max-w-sm rounded-2xl border border-zinc-700/60 bg-zinc-900 shadow-2xl shadow-black/60">
+          <div className="relative z-10 w-full max-w-sm rounded-2xl border border-zinc-700/60 bg-zinc-900 shadow-2xl shadow-black/60">
 
             {/* Header */}
             <div className="flex items-center justify-between border-b border-zinc-800/60 px-5 py-4">
