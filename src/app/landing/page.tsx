@@ -167,7 +167,7 @@ export default function LandingPage() {
           <div className="flex items-center gap-5">
             <Link href="/about" className="text-sm text-zinc-500 hover:text-zinc-800 transition-colors">About</Link>
             <Link
-              href="/upload"
+              href="/"
               className="rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90 transition-opacity"
             >
               Find My Money
@@ -212,7 +212,7 @@ export default function LandingPage() {
             </div>
 
             <Link
-              href="/upload"
+              href="/"
               className="inline-block rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-amber-200 hover:opacity-90 transition-opacity"
             >
               Find My Money
@@ -383,7 +383,7 @@ export default function LandingPage() {
             It takes 30 seconds to find out.
           </p>
           <Link
-            href="/upload"
+            href="/"
             className="inline-block rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-10 py-5 text-xl font-bold text-white shadow-xl shadow-amber-900/30 hover:opacity-90 transition-opacity"
           >
             Find My Money

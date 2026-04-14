@@ -29,7 +29,7 @@ export default function RootLayout({
       lang="en"
       className={`${instrumentSerif.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-zinc-950 text-zinc-100" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
+      <body className="min-h-full flex flex-col bg-white text-zinc-900" style={{ fontFamily: 'var(--font-dm-sans), sans-serif' }}>
         {children}
         <HelpButton />
         <Analytics />

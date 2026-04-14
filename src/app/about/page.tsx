@@ -1,29 +1,24 @@
 import Link from 'next/link'
 import { ArrowLeft, Coins, Clock, Database, FileSearch, Shield, SlidersHorizontal } from 'lucide-react'
 
-const SERIF = { fontFamily: 'var(--font-instrument-serif, "Instrument Serif", Georgia, serif)' }
-
 export default function AboutPage() {
   return (
-    <div
-      className="flex flex-col min-h-screen bg-zinc-950"
-      style={{ fontFamily: 'var(--font-dm-sans, "DM Sans", sans-serif)' }}
-    >
+    <div className="flex flex-col min-h-screen bg-white">
 
       {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-zinc-100 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 shadow-md shadow-amber-500/20">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-amber-400 to-amber-600 shadow-sm">
               <Coins className="h-4 w-4 text-white" />
             </div>
-            <span className="text-sm font-semibold tracking-tight text-zinc-100">
-              Vault<span className="text-amber-400">Trace</span>
+            <span className="text-sm font-bold tracking-tight text-zinc-900">
+              Vault<span className="text-amber-500">Trace</span>
             </span>
           </Link>
           <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+            href="/scan"
+            className="flex items-center gap-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-800"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to scan
@@ -33,32 +28,32 @@ export default function AboutPage() {
 
       <main className="flex-1 mx-auto w-full max-w-2xl px-6 py-14 flex flex-col gap-14">
 
-        {/* ── Origin story ──────────────────────────────────────────────────── */}
+        {/* ── Origin story ── */}
         <section className="flex flex-col gap-6">
           <div className="flex flex-col gap-3">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/5 px-3 py-1">
-              <span className="text-xs font-medium text-amber-400">About</span>
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1">
+              <span className="text-xs font-medium text-amber-700">About</span>
             </div>
-            <h1 className="text-4xl text-zinc-100" style={SERIF}>
+            <h1 className="text-4xl font-extrabold text-zinc-900">
               Why I built this
             </h1>
           </div>
 
           {/* Profile card */}
-          <div className="flex items-start gap-5 rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-xl font-bold text-white shadow-lg shadow-amber-500/20">
+          <div className="flex items-start gap-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-xl font-bold text-white shadow-lg shadow-amber-200">
               J
             </div>
             <div className="flex flex-col gap-1">
-              <p className="text-sm font-semibold text-zinc-100">Josh Panfil</p>
+              <p className="text-sm font-semibold text-zinc-900">Josh Panfil</p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4 text-sm leading-relaxed text-zinc-400">
+          <div className="flex flex-col gap-4 text-sm leading-relaxed text-zinc-500">
             <p>
-              I&rsquo;m Josh, a finance sophomore at USC. Last year I came across a statistic that
+              I&rsquo;m Josh, a sophomore studying finance at USC. Last year I came across a statistic that
               stopped me mid-scroll: Americans have over{' '}
-              <span className="text-zinc-200 font-medium">$2.1 trillion</span> sitting in forgotten
+              <span className="text-zinc-800 font-medium">$2.1 trillion</span> sitting in forgotten
               401(k) accounts — money that belongs to real people who simply lost track of it when
               they changed jobs.
             </p>
@@ -74,16 +69,16 @@ export default function AboutPage() {
               it against the DOL retirement plan database, and surfaces likely matches — in about 20
               seconds.
             </p>
-            <p className="text-zinc-300 font-medium border-l-2 border-amber-500/50 pl-4">
+            <p className="text-zinc-700 font-medium border-l-2 border-amber-400 pl-4">
               &ldquo;Find what&rsquo;s still yours.&rdquo; That&rsquo;s the whole thing.
             </p>
           </div>
         </section>
 
-        {/* ── How it works ──────────────────────────────────────────────────── */}
+        {/* ── How it works ── */}
         <section className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <h2 className="text-2xl text-zinc-100" style={SERIF}>How it works</h2>
+            <h2 className="text-2xl font-bold text-zinc-900">How it works</h2>
             <p className="text-sm text-zinc-500 leading-relaxed">
               The technical version, for those who want to know exactly what&rsquo;s happening to their data.
             </p>
@@ -92,14 +87,14 @@ export default function AboutPage() {
           <div className="flex flex-col gap-4">
 
             {/* Step 1 */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden">
-              <div className="flex items-center gap-3 border-b border-zinc-800/60 px-5 py-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-                  <FileSearch className="h-4 w-4 text-amber-400" />
+            <div className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 border-b border-zinc-100 px-5 py-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50">
+                  <FileSearch className="h-4 w-4 text-amber-500" />
                 </div>
-                <p className="text-sm font-semibold text-zinc-100">Step 1 — IRS transcript parsing</p>
+                <p className="text-sm font-semibold text-zinc-900">Step 1 — IRS transcript parsing</p>
               </div>
-              <div className="px-5 py-4 flex flex-col gap-2.5 text-sm leading-relaxed text-zinc-400">
+              <div className="px-5 py-4 flex flex-col gap-2.5 text-sm leading-relaxed text-zinc-500">
                 <p>
                   Your IRS Wage &amp; Income Transcript is a PDF that lists every employer who
                   reported wages on your behalf going back to 1993. It contains the employer&rsquo;s name
@@ -108,7 +103,7 @@ export default function AboutPage() {
                 </p>
                 <p>
                   VaultTrace passes the raw PDF bytes to a{' '}
-                  <span className="text-zinc-300">Claude AI vision model</span>, which reads the
+                  <span className="text-zinc-700">Claude AI vision model</span>, which reads the
                   document and extracts each employer record. IRS transcripts are tricky — employer
                   names are truncated to 35 characters and EINs are sometimes partially redacted.
                   The parser reconstructs multi-line names and handles redacted EINs by falling back
@@ -122,20 +117,20 @@ export default function AboutPage() {
             </div>
 
             {/* Step 2 */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden">
-              <div className="flex items-center gap-3 border-b border-zinc-800/60 px-5 py-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-                  <Database className="h-4 w-4 text-amber-400" />
+            <div className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 border-b border-zinc-100 px-5 py-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50">
+                  <Database className="h-4 w-4 text-amber-500" />
                 </div>
-                <p className="text-sm font-semibold text-zinc-100">Step 2 — DOL Form 5500 database</p>
+                <p className="text-sm font-semibold text-zinc-900">Step 2 — DOL Form 5500 database</p>
               </div>
-              <div className="px-5 py-4 flex flex-col gap-2.5 text-sm leading-relaxed text-zinc-400">
+              <div className="px-5 py-4 flex flex-col gap-2.5 text-sm leading-relaxed text-zinc-500">
                 <p>
                   Any employer that offers a retirement plan with more than one participant must file
                   an annual{' '}
-                  <span className="text-zinc-300">Form 5500</span> with the Department of Labor. The
+                  <span className="text-zinc-700">Form 5500</span> with the Department of Labor. The
                   DOL publishes all of these filings going back to 2000 through their{' '}
-                  <span className="text-zinc-300">EFAST2</span> system — roughly 800,000 active plans.
+                  <span className="text-zinc-700">EFAST2</span> system — roughly 800,000 active plans.
                 </p>
                 <p>
                   For each employer in your transcript, VaultTrace queries the EFAST2 API first by
@@ -145,9 +140,9 @@ export default function AboutPage() {
                 </p>
                 <p>
                   We also check the{' '}
-                  <span className="text-zinc-300">PBGC Missing Participants Program</span> (for
+                  <span className="text-zinc-700">PBGC Missing Participants Program</span> (for
                   terminated pension plans) and{' '}
-                  <span className="text-zinc-300">10 state unclaimed property databases</span> in
+                  <span className="text-zinc-700">10 state unclaimed property databases</span> in
                   parallel, so the total scan time is roughly as long as the slowest single lookup —
                   usually 10–20 seconds.
                 </p>
@@ -155,18 +150,18 @@ export default function AboutPage() {
             </div>
 
             {/* Step 3 */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900 overflow-hidden">
-              <div className="flex items-center gap-3 border-b border-zinc-800/60 px-5 py-4">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10">
-                  <SlidersHorizontal className="h-4 w-4 text-amber-400" />
+            <div className="rounded-2xl border border-zinc-200 bg-white overflow-hidden shadow-sm">
+              <div className="flex items-center gap-3 border-b border-zinc-100 px-5 py-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50">
+                  <SlidersHorizontal className="h-4 w-4 text-amber-500" />
                 </div>
-                <p className="text-sm font-semibold text-zinc-100">Step 3 — Confidence scoring</p>
+                <p className="text-sm font-semibold text-zinc-900">Step 3 — Confidence scoring</p>
               </div>
-              <div className="px-5 py-4 flex flex-col gap-2.5 text-sm leading-relaxed text-zinc-400">
+              <div className="px-5 py-4 flex flex-col gap-2.5 text-sm leading-relaxed text-zinc-500">
                 <p>
                   Every match gets a score from 0–95%. The score is built from weighted signals:
                 </p>
-                <div className="rounded-xl border border-zinc-800 bg-zinc-950/60 overflow-hidden">
+                <div className="rounded-xl border border-zinc-100 bg-zinc-50 overflow-hidden">
                   {[
                     ['+40', 'DOL Form 5500 filing found'],
                     ['+20', 'Verified EIN (not redacted)'],
@@ -176,11 +171,11 @@ export default function AboutPage() {
                     ['+10', 'State unclaimed property match'],
                     ['−10', 'Name-only match (no EIN)'],
                   ].map(([pts, label]) => (
-                    <div key={label} className="flex items-center gap-3 px-4 py-2.5 border-b border-zinc-800/60 last:border-0">
+                    <div key={label} className="flex items-center gap-3 px-4 py-2.5 border-b border-zinc-100 last:border-0">
                       <span className={`w-8 shrink-0 text-xs font-bold tabular-nums ${
-                        pts.startsWith('+') ? 'text-green-400' : 'text-red-400'
+                        pts.startsWith('+') ? 'text-green-600' : 'text-red-500'
                       }`}>{pts}</span>
-                      <span className="text-xs text-zinc-400">{label}</span>
+                      <span className="text-xs text-zinc-500">{label}</span>
                     </div>
                   ))}
                 </div>
@@ -195,14 +190,14 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Data security ─────────────────────────────────────────────────── */}
+        {/* ── Data security ── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl text-zinc-100" style={SERIF}>Data security</h2>
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-5 flex items-start gap-4">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-500/10 ring-1 ring-green-500/20">
-              <Shield className="h-4 w-4 text-green-400" />
+          <h2 className="text-2xl font-bold text-zinc-900">Data security</h2>
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 flex items-start gap-4 shadow-sm">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-50 ring-1 ring-green-200">
+              <Shield className="h-4 w-4 text-green-600" />
             </div>
-            <div className="flex flex-col gap-2 text-sm leading-relaxed text-zinc-400">
+            <div className="flex flex-col gap-2 text-sm leading-relaxed text-zinc-500">
               <p>
                 Your uploaded files are processed in memory and deleted immediately — never written
                 to disk or stored on our servers. If you optionally provide your SSN for a registry
@@ -215,7 +210,7 @@ export default function AboutPage() {
               </p>
               <Link
                 href="/security"
-                className="inline-flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300 transition-colors"
+                className="inline-flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 transition-colors"
               >
                 Read the full security breakdown →
               </Link>
@@ -223,17 +218,17 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* ── Contact ───────────────────────────────────────────────────────── */}
+        {/* ── Contact ── */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-2xl text-zinc-100" style={SERIF}>Get in touch</h2>
-          <div className="flex flex-col gap-3 text-sm leading-relaxed text-zinc-400">
+          <h2 className="text-2xl font-bold text-zinc-900">Get in touch</h2>
+          <div className="flex flex-col gap-3 text-sm leading-relaxed text-zinc-500">
             <p>
               Questions, feedback, or found a bug? I&rsquo;d genuinely love to hear from you —
               especially if VaultTrace helped you find something.
             </p>
             <a
               href="mailto:josh@vaulttrace.org"
-              className="inline-flex w-fit items-center gap-2 rounded-xl border border-zinc-700/60 bg-zinc-900 px-4 py-2.5 text-sm font-medium text-zinc-300 transition-colors hover:border-amber-500/40 hover:text-amber-400"
+              className="inline-flex w-fit items-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:border-amber-300 hover:text-amber-600 shadow-sm"
             >
               josh@vaulttrace.org
             </a>
@@ -243,19 +238,19 @@ export default function AboutPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/60 py-6">
+      <footer className="border-t border-zinc-100 py-6">
         <div className="mx-auto max-w-3xl px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-zinc-600">
+          <div className="flex items-center gap-2 text-xs text-zinc-400">
             <Coins className="h-3.5 w-3.5" />
             <span className="font-semibold">VaultTrace</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-3">
-              <Link href="/terms"   className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Terms</Link>
-              <Link href="/privacy" className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Privacy</Link>
-              <Link href="/about"   className="text-xs text-amber-500/70 hover:text-amber-400 transition-colors">About</Link>
+              <Link href="/terms"   className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors">Terms</Link>
+              <Link href="/privacy" className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors">Privacy</Link>
+              <Link href="/about"   className="text-xs text-amber-500 hover:text-amber-600 transition-colors">About</Link>
             </div>
-            <div className="flex items-center gap-1.5 text-zinc-700">
+            <div className="flex items-center gap-1.5 text-zinc-300">
               <Clock className="h-3 w-3" />
               <span className="text-xs">Data sourced from DOL EFAST2</span>
             </div>
